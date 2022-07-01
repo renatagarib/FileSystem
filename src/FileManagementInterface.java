@@ -1,5 +1,4 @@
 import exceptions.*;
-
 public interface FileManagementInterface{
 	
 	/**

@@ -1,6 +1,6 @@
 package structures;
 
-public class FileManagementBlock {
+public class SNode {
     private FileType fileType;
     private byte generation;
     private long creationDate;
@@ -11,7 +11,7 @@ public class FileManagementBlock {
     private int dataBlock_03;
     private int dataBlock_04;
 
-    public FileManagementBlock(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01) {
+    public SNode(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01) {
         this.fileType = fileType;
         this.generation = generation;
         this.creationDate = creationDate;
@@ -20,7 +20,7 @@ public class FileManagementBlock {
         this.dataBlock_01 = dataBlock_01;
     }
 
-    public FileManagementBlock(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02) {
+    public SNode(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02) {
         this.fileType = fileType;
         this.generation = generation;
         this.creationDate = creationDate;
@@ -30,7 +30,7 @@ public class FileManagementBlock {
         this.dataBlock_02 = dataBlock_02;
     }
 
-    public FileManagementBlock(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02, int dataBlock_03) {
+    public SNode(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02, int dataBlock_03) {
         this.fileType = fileType;
         this.generation = generation;
         this.creationDate = creationDate;
@@ -41,7 +41,7 @@ public class FileManagementBlock {
         this.dataBlock_03 = dataBlock_03;
     }
 
-    public FileManagementBlock(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02, int dataBlock_03, int dataBlock_04) {
+    public SNode(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02, int dataBlock_03, int dataBlock_04) {
         this.fileType = fileType;
         this.generation = generation;
         this.creationDate = creationDate;

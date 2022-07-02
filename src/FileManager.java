@@ -1,6 +1,5 @@
-import exceptions.InvalidEntryException;
-import exceptions.InvalidSNodeException;
-import exceptions.VirtualFileNotFoundException;
+import exceptions.*;
+import structures.FileType;
 
 public class FileManager implements FileManagementInterface, VirtualDiskInspectionInterface{
     @Override

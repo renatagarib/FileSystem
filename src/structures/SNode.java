@@ -11,9 +11,9 @@ public class SNode {
     private int dataBlock_03;
     private int dataBlock_04;
 
-    public SNode(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01) {
+    public SNode(FileType fileType, long creationDate, long modificationDate, short length, int dataBlock_01) {
         this.fileType = fileType;
-        this.generation = generation;
+        this.generation = 0;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
         this.length = length;

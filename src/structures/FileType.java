@@ -16,7 +16,7 @@ public enum FileType{
         this.id = id;
     }
 
-    private byte id() {
+    public byte id() {
         return id;
     }
 

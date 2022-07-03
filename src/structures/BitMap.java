@@ -21,4 +21,13 @@ public class BitMap {
         int place = location/8;
         return (byte)((elements[place] >> (7 - location % 8)) & 1);
     }
+
+    public int findClearSpot() {
+        for (int i = 0; i < (elements.length * 8); i++) {
+            if (getElement(i) == 0) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }

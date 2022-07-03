@@ -1,3 +1,5 @@
+package interfaces;
+
 import exceptions.*;
 import structures.FileType;
 public interface FileManagementInterface{

@@ -1,7 +1,11 @@
+package application;
+
 import exceptions.*;
+import interfaces.FileManagementInterface;
+import interfaces.VirtualDiskInspectionInterface;
 import structures.FileType;
 
-public class FileManager implements FileManagementInterface, VirtualDiskInspectionInterface{
+public class FileManager implements FileManagementInterface, VirtualDiskInspectionInterface {
     @Override
     public boolean addDirectory(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
         return false;

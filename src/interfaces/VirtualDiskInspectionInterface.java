@@ -1,3 +1,5 @@
+package interfaces;
+
 import exceptions.*;
 public interface VirtualDiskInspectionInterface{
 	

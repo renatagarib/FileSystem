@@ -1,6 +1,7 @@
 package structures;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 public class DEntry {
     private int sNodeIdentifier;
@@ -18,32 +19,49 @@ public class DEntry {
     }
 
     public byte[] turnIntoBytes() {
+        //create an array to store the bytes
         byte[] bytes = new byte[entryLength];
 
+        //create a variable to track where we are at the array, starting at the beginning
         int placeInTheArray = 0;
+
+        //transform the NodeIdentifier into bytes
         ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
         buffer.putInt(sNodeIdentifier);
+        //rewind it so the first byte is in the right
         buffer.rewind();
         byte[] sNodeIdentifierInBytes = buffer.array();
-        System.arraycopy(sNodeIdentifierInBytes, 0, bytes, placeInTheArray, sNodeIdentifierInBytes.length);
+        //add the bytes, starting at the second one to simulate unsigned integer,
+        //into the array that's going to be returned
+        System.arraycopy(sNodeIdentifierInBytes, 2, bytes, placeInTheArray, sNodeIdentifierInBytes.length);
 
+        //update the new position adding the length of the added array
         placeInTheArray += sNodeIdentifierInBytes.length;
 
+        //transform entryLength into bytes
         buffer = ByteBuffer.allocate(Short.BYTES);
         buffer.putInt(entryLength);
+        //rewind it so the first byte is in the right
         buffer.rewind();
         byte[] entryLengthInBytes = buffer.array();
+        //add the bytes into the array that's going to be returned
         System.arraycopy(entryLengthInBytes, 0, bytes, placeInTheArray, entryLengthInBytes.length);
 
+        //update the position
         placeInTheArray += entryLengthInBytes.length;
 
-        buffer = ByteBuffer.allocate(1);
-        buffer.putInt(fileType.id());
-        buffer.rewind();
-        byte[] fileTypeInBytes = buffer.array();
-        System.arraycopy(fileTypeInBytes, 0, bytes, placeInTheArray, fileTypeInBytes.length);
+        //get the fileType id and store it in the array
+        bytes[placeInTheArray] = fileType.id();
+        placeInTheArray += 1;
 
-        placeInTheArray += fileTypeInBytes.length;
+        //get the fileNameLength and store it in the array
+        bytes[placeInTheArray] = fileNameLength;
+        placeInTheArray += 1;
+
+        //transform the fileName in bytes using utf-8
+        byte[] fileNameInBytes = fileName.getBytes(StandardCharsets.UTF_8);
+        //store it into the array
+        System.arraycopy(entryLengthInBytes, 0, bytes, placeInTheArray, fileNameInBytes.length);
 
         return bytes;
     }

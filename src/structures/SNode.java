@@ -18,6 +18,9 @@ public class SNode {
         this.modificationDate = modificationDate;
         this.length = length;
         this.dataBlock_01 = dataBlock_01;
+        dataBlock_02 = -1;
+        dataBlock_03 = -1;
+        dataBlock_04 = -1;
     }
 
     public SNode(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02) {
@@ -28,6 +31,8 @@ public class SNode {
         this.length = length;
         this.dataBlock_01 = dataBlock_01;
         this.dataBlock_02 = dataBlock_02;
+        dataBlock_03 = -1;
+        dataBlock_04 = -1;
     }
 
     public SNode(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02, int dataBlock_03) {
@@ -39,6 +44,7 @@ public class SNode {
         this.dataBlock_01 = dataBlock_01;
         this.dataBlock_02 = dataBlock_02;
         this.dataBlock_03 = dataBlock_03;
+        dataBlock_04 = -1;
     }
 
     public SNode(FileType fileType, byte generation, long creationDate, long modificationDate, short length, int dataBlock_01, int dataBlock_02, int dataBlock_03, int dataBlock_04) {

@@ -32,19 +32,27 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
     }
 
     private void addRootDirectory() {
+        //get the time of creation
         ZoneId zoneId = ZoneId.systemDefault();
         long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
 
+        //create a sNode for the root directory
         SNode rootNode = new SNode(FileType.DIRECTORY, time, time, (short) 1, 0);
+        //add the sNode to the sNodes array
         sNodes[0] = rootNode;
 
+        //change the bitmap element of the sNode and dataBlock to 1
         fileInfoControl.addElement(0);
         dataControl.addElement(0);
     }
 
     @Override
     public boolean addDirectory(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
+        String[] directories = pathname.split("/");
 
+        if (directories.length == 0) {
+
+        }
 
         return false;
     }

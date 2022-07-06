@@ -65,4 +65,24 @@ public class DEntry {
 
         return bytes;
     }
+
+    public int getsNodeIdentifier() {
+        return sNodeIdentifier;
+    }
+
+    public short getEntryLength() {
+        return entryLength;
+    }
+
+    public FileType getFileType() {
+        return fileType;
+    }
+
+    public byte getFileNameLength() {
+        return fileNameLength;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
 }

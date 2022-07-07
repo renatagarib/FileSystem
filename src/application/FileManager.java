@@ -6,10 +6,9 @@ import java.time.ZoneId;
 import exceptions.*;
 import interfaces.FileManagementInterface;
 import interfaces.VirtualDiskInspectionInterface;
-import structures.BitMap;
-import structures.DataBlock;
-import structures.FileType;
-import structures.SNode;
+import structures.*;
+
+import static structures.FileType.DIRECTORY;
 
 public class FileManager implements FileManagementInterface, VirtualDiskInspectionInterface {
 
@@ -37,7 +36,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
 
         //create a sNode for the root directory
-        SNode rootNode = new SNode(FileType.DIRECTORY, time, time, (short) 1, 0);
+        SNode rootNode = new SNode(DIRECTORY, time, time, (short) 1, new int[] {0});
         //add the sNode to the sNodes array
         sNodes[0] = rootNode;
 
@@ -48,11 +47,43 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     @Override
     public boolean addDirectory(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
-        String[] directories = pathname.split("/");
+        int dirSNode = fileInfoControl.findClearSpot();
+        int dirDataBlock = dataControl.findClearSpot();
 
-        if (directories.length == 0) {
+        //checks if there is a free SNode
+        if (dirSNode > 0) {
+            //checks if there is a free DataBlock
+            if (dirDataBlock > 0) {
+                String[] directories = pathname.split("/");
+                short entryLength = (short) (filename.length() + 6);
 
+                while (entryLength % 16 != 0) {
+                    entryLength ++;
+                }
+
+                if (directories.length == 0) {
+                    int[] dirDataBlocks = sNodes[0].getDataBlocks();
+                    DEntry dir = new DEntry(dirSNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
+                    return (dataBlocks[dirDataBlocks[0]].addDEntry(dir));
+
+                } else {
+                    int sNode = 0;
+                    int[] dirDataBlocks;
+                    for (String directory : directories) {
+                        dirDataBlocks = sNodes[sNode].getDataBlocks();
+                        sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(directory);
+                        if (sNode == -1) {
+                            return false;
+                        }
+                    }
+                    dirDataBlocks = sNodes[sNode].getDataBlocks();
+                    DEntry dir = new DEntry(dirSNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
+                    return (dataBlocks[dirDataBlocks[0]].addDEntry(dir));
+                }
+            }
         }
+
+
 
         return false;
     }

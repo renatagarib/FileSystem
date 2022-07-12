@@ -72,7 +72,13 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
                 }
                 dirDataBlocks = sNodes[sNode].getDataBlocks();
                 DEntry dir = new DEntry(dirSNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
-                return (dataBlocks[dirDataBlocks[0]].addDEntry(dir));
+                if (dataBlocks[dirDataBlocks[0]].addDEntry(dir)) {
+                    fileInfoControl.addElement(dirSNode);
+                    dataControl.addElement(dirDataBlock);
+                    return true;
+                } else {
+                    return false;
+                }
 
             }
         }

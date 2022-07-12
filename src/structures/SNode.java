@@ -8,13 +8,33 @@ public class SNode {
     private short length;
     private int[] dataBlocks;
 
+    public SNode() {
+        generation = 0;
+    }
+
     public SNode(FileType fileType, long creationDate, long modificationDate, short length, int[] dataBlocks) {
         this.fileType = fileType;
-        this.generation = 0;
+        this.generation ++;
         this.creationDate = creationDate;
         this.modificationDate = modificationDate;
         this.length = length;
         this.dataBlocks = dataBlocks;
+    }
+
+    public boolean reUseSNode(FileType fileType, long creationDate, long modificationDate, short length, int[] dataBlocks) {
+        this.fileType = fileType;
+        this.generation ++;
+        this.creationDate = creationDate;
+        this.modificationDate = modificationDate;
+        this.length = length;
+        this.dataBlocks = dataBlocks;
+
+        return true;
+    }
+
+    public boolean addADEntry(long date) {
+
+        return true;
     }
 
     public FileType getFileType() {

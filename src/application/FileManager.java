@@ -51,9 +51,9 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         int dirDataBlock = dataControl.findClearSpot();
 
         //checks if there is a free SNode
-        if (dirSNode > 0) {
+        if (dirSNode > 0) { //return -1 if there isn't a free space
             //checks if there is a free DataBlock
-            if (dirDataBlock > 0) {
+            if (dirDataBlock > 0) { //return -1 if there isn't a free space
                 String[] directories = pathname.split("/");
                 short entryLength = (short) (filename.length() + 6);
 
@@ -61,30 +61,21 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
                     entryLength ++;
                 }
 
-                if (directories.length == 0) {
-                    int[] dirDataBlocks = sNodes[0].getDataBlocks();
-                    DEntry dir = new DEntry(dirSNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
-                    return (dataBlocks[dirDataBlocks[0]].addDEntry(dir));
-
-                } else {
-                    int sNode = 0;
-                    int[] dirDataBlocks;
-                    for (String directory : directories) {
-                        dirDataBlocks = sNodes[sNode].getDataBlocks();
-                        sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(directory);
-                        if (sNode == -1) {
-                            return false;
-                        }
-                    }
+                int sNode = 0;
+                int[] dirDataBlocks;
+                for (String directory : directories) {
                     dirDataBlocks = sNodes[sNode].getDataBlocks();
-                    DEntry dir = new DEntry(dirSNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
-                    return (dataBlocks[dirDataBlocks[0]].addDEntry(dir));
+                    sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(directory);
+                    if (sNode == -1) {
+                        return false;
+                    }
                 }
+                dirDataBlocks = sNodes[sNode].getDataBlocks();
+                DEntry dir = new DEntry(dirSNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
+                return (dataBlocks[dirDataBlocks[0]].addDEntry(dir));
+
             }
         }
-
-
-
         return false;
     }
 

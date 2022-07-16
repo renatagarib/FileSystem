@@ -3,6 +3,7 @@ package structures;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DataBlock {
@@ -88,5 +89,39 @@ public class DataBlock {
             }
         }
         return -1;
+    }
+
+
+    // DEntry:
+    // 2 bytes -> sNode
+    // 2 bytes -> entryLength -> i, i+1
+    // 1 byte  -> fileType -> i+2
+    // 1 byte  -> fileNameLength -> i+3
+    // x bytes -> fileName
+
+    public String[] toStringArray() {
+        ArrayList<String> entries = new ArrayList<>();
+
+        for (int i = 2; i < data.length - 6; i++) {
+            ByteBuffer bb = ByteBuffer.allocate(4);
+            bb.order(ByteOrder.BIG_ENDIAN);
+            bb.put((byte) 0);
+            bb.put((byte) 0);
+            bb.put(data[i]);
+            bb.put(data[i+1]);
+            int entryLength = bb.getInt(0);
+
+            byte[] nameInBytes = new byte[data[i+3]];
+            int character = i+4;
+            for (int j = 0; j < data[i+3]; j++) {
+                nameInBytes[j] = data[character];
+                character ++;
+            }
+
+            String name = new String(nameInBytes, StandardCharsets.UTF_8);
+            entries.add(name);
+        }
+
+        return entries.toArray(new String[0]);
     }
 }

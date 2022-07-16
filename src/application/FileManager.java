@@ -201,11 +201,9 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             }
         } else {
             int[] db = sNodes[sNode].getDataBlocks();
-
             for (int entry : db) {
                 dataControl.clearElement(entry);
             }
-
             fileInfoControl.clearElement(sNode);
             return true;
         }
@@ -213,7 +211,16 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     @Override
     public String[] listDirectory(String pathname) throws InvalidEntryException, VirtualFileNotFoundException {
-        return new String[0];
+        if (!pathname.contains("/"))
+            throw new InvalidEntryException("Invalid pathname.");
+
+        int sNode = findDirectoryThroughPath(pathname);
+        if (sNode == -1)
+            throw new VirtualFileNotFoundException("Directory not found.");
+
+        int[] dirDataBlocks = sNodes[sNode].getDataBlocks();
+
+        return dataBlocks[dirDataBlocks[0]].toStringArray();
     }
 
     @Override

@@ -149,7 +149,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         if (dataBlocks[dirDataBlocks[0]].lookForDEntry(filename) != -1)
             throw new InvalidEntryException("There is already a file named " + filename + " in the chosen directory.");
 
-        //create a dEntry for the new directory
+        //create a dEntry for the new file
         DEntry file = new DEntry(fileSNode, entryLength, type, (byte) filename.length(), filename);
         if (dataBlocks[dirDataBlocks[0]].addDEntry(file)) {
             ZoneId zoneId = ZoneId.systemDefault();
@@ -174,7 +174,37 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     @Override
     public boolean deleteFile(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
-        return false;
+        int sNode = findDirectoryThroughPath(pathname);
+        if (sNode == -1)
+            throw new VirtualFileNotFoundException("Directory not found in pathname.");
+
+        int[] dirDataBlocks = sNodes[sNode].getDataBlocks();
+
+        sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(filename);
+        if (sNode == -1)
+            throw new VirtualFileNotFoundException("File not found in directory.");
+
+        if (sNodes[sNode].getFileType() == DIRECTORY) {
+            if (sNodes[sNode].getLength() > 0) {
+                System.out.println("A Directory can only be deleted if it is clear");
+                return false;
+            } else {
+                dirDataBlocks = sNodes[sNode].getDataBlocks();
+
+                dataControl.clearElement(dirDataBlocks[0]);
+                fileInfoControl.clearElement(sNode);
+                return true;
+            }
+        } else {
+            int[] db = sNodes[sNode].getDataBlocks();
+
+            for (int entry : db) {
+                dataControl.clearElement(entry);
+            }
+
+            fileInfoControl.clearElement(sNode);
+            return true;
+        }
     }
 
     @Override

@@ -47,6 +47,12 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     @Override
     public boolean addDirectory(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
+        if (!pathname.contains("/"))
+            throw new InvalidEntryException("Invalid pathname.");
+        if (filename.length() > 122 || filename.matches("\\A\\p{ASCII}*\\z"))
+            throw new InvalidEntryException("Invalid name.");
+
+
         int dirSNode = fileInfoControl.findClearSpot();
         int dirDataBlock = dataControl.findClearSpot();
 
@@ -62,12 +68,16 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
                     entryLength ++;
                 }
 
-                //start at the root sNode
+                //find the directory where the new directory will go
                 int sNode = findDirectoryThroughPath(pathname);
+                //if the directory isn't found
                 if (sNode == -1)
                     throw new InvalidEntryException("Directory not found in pathname.");
                 //get the data blocks from the last directory in the path (where the new directory will be added)
                 int[] dirDataBlocks = sNodes[sNode].getDataBlocks();
+                //check for repeated filenames
+                if (dataBlocks[dirDataBlocks[0]].lookForDEntry(filename) != -1)
+                    throw new InvalidEntryException("There is already a file named " + filename + " in the chosen directory.");
                 //create a dEntry for the new directory
                 DEntry dir = new DEntry(dirSNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
                 if (dataBlocks[dirDataBlocks[0]].addDEntry(dir)) {

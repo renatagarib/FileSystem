@@ -52,7 +52,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
     public boolean addDirectory(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
         if (!pathname.contains("/"))
             throw new InvalidEntryException("Invalid pathname.");
-        if (filename.length() > 122 || filename.matches("\\A\\p{ASCII}*\\z"))
+        if (filename.length() > 122 || !filename.matches("^[a-zA-Z\\d.\\s_]+$"))
             throw new InvalidEntryException("Invalid name.");
 
 
@@ -109,7 +109,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
     public boolean addFile(String pathname, String filename, FileType type, int length) throws InvalidEntryException, VirtualFileNotFoundException {
         if (!pathname.contains("/"))
             throw new InvalidEntryException("Invalid pathname.");
-        if (filename.length() > 122 || filename.matches("\\A\\p{ASCII}*\\z"))
+        if (filename.length() > 122 || !filename.matches("^[a-zA-Z\\d.\\s_]+$"))
             throw new InvalidEntryException("Invalid name.");
         if (type == DIRECTORY)
             throw new InvalidEntryException("To add a directory, choose addDirectory.");

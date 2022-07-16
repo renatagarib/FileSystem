@@ -168,12 +168,16 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             }
             return true;
         }
-
         return false;
     }
 
     @Override
     public boolean deleteFile(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
+        if (!pathname.contains("/"))
+            throw new InvalidEntryException("Invalid pathname.");
+        if (filename.length() > 122 || !filename.matches("^[a-zA-Z\\d.\\s_]+$"))
+            throw new InvalidEntryException("Invalid name.");
+
         int sNode = findDirectoryThroughPath(pathname);
         if (sNode == -1)
             throw new VirtualFileNotFoundException("Directory not found in pathname.");

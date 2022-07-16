@@ -32,8 +32,9 @@ public class SNode {
         return true;
     }
 
-    public boolean addADEntry(long date) {
-
+    public boolean addDEntry(long date, short size) {
+        this.modificationDate = date;
+        this.length += size;
         return true;
     }
 

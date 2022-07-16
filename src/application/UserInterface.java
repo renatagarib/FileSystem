@@ -2,12 +2,13 @@ package application;
 
 import java.util.Scanner;
 import exceptions.*;
+import structures.FileType;
 
 public class UserInterface {
 
     public static void main(String args[]) throws InvalidEntryException, InvalidSNodeException, VirtualFileNotFoundException{
 
-        FileManager gerenteDeArquivo = new FileManager(Integer.parseInt(args[0]));
+        FileManager gerenteDeArquivo = new FileManager(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 
         String input;
         String[] comando = new String[3];
@@ -26,7 +27,7 @@ public class UserInterface {
                     break;
                 case "addFile":
                     if (conferirArgumentos(comando, 4))
-                        gerenteDeArquivo.addFile(comando[1], comando[2], comando[3], Integer.parseInt(comando[4]) );
+                        gerenteDeArquivo.addFile(comando[1], comando[2], FileType.valueOf(comando[3]), Integer.parseInt(comando[4]) );
                     break;
                 case "listDirectory":
                     if (conferirArgumentos(comando, 1)) {

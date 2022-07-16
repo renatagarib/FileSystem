@@ -19,6 +19,11 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     public FileManager(int n, int m) {
         sNodes = new SNode[n];
+
+        for (SNode sNode : sNodes) {
+            sNode = new SNode();
+        }
+
         fileInfoControl = new BitMap(n/8);
         dataBlocks = new DataBlock[m];
         dataControl = new BitMap(m/8);
@@ -35,10 +40,8 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         ZoneId zoneId = ZoneId.systemDefault();
         long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
 
-        //create a sNode for the root directory
-        SNode rootNode = new SNode(DIRECTORY, time, time, (short) 0, new int[] {0});
         //add the sNode to the sNodes array
-        sNodes[0] = rootNode;
+        sNodes[0].reUseSNode(DIRECTORY, time, time, (short) 0, new int[] {0});
 
         //change the bitmap element of the sNode and dataBlock to 1
         fileInfoControl.addElement(0);
@@ -60,7 +63,6 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         if (dirSNode > 0) { //return -1 if there isn't a free space
             //checks if there is a free DataBlock
             if (dirDataBlock > 0) { //return -1 if there isn't a free space
-                String[] directories = pathname.split("/");
                 short entryLength = (short) (filename.length() + 6);
 
                 //turn entryLength into a multiple of 16

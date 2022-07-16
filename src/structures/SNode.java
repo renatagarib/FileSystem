@@ -21,7 +21,7 @@ public class SNode {
         this.dataBlocks = dataBlocks;
     }
 
-    public boolean reUseSNode(FileType fileType, long creationDate, long modificationDate, short length, int[] dataBlocks) {
+    public void reUseSNode(FileType fileType, long creationDate, long modificationDate, short length, int[] dataBlocks) {
         this.fileType = fileType;
         this.generation ++;
         this.creationDate = creationDate;
@@ -29,7 +29,6 @@ public class SNode {
         this.length = length;
         this.dataBlocks = dataBlocks;
 
-        return true;
     }
 
     public boolean addDEntry(long date, short size) {

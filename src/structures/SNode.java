@@ -12,15 +12,6 @@ public class SNode {
         generation = 0;
     }
 
-    public SNode(FileType fileType, long creationDate, long modificationDate, short length, int[] dataBlocks) {
-        this.fileType = fileType;
-        this.generation ++;
-        this.creationDate = creationDate;
-        this.modificationDate = modificationDate;
-        this.length = length;
-        this.dataBlocks = dataBlocks;
-    }
-
     public void reUseSNode(FileType fileType, long creationDate, long modificationDate, short length, int[] dataBlocks) {
         this.fileType = fileType;
         this.generation ++;
@@ -31,10 +22,14 @@ public class SNode {
 
     }
 
-    public boolean addDEntry(long date, short size) {
+    public void addDEntry(long date, short size) {
         this.modificationDate = date;
         this.length += size;
-        return true;
+    }
+
+    public void deleteDEntry(long date, short size) {
+        this.modificationDate = date;
+        this.length -= size;
     }
 
     public FileType getFileType() {

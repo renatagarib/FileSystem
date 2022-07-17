@@ -178,13 +178,13 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         if (filename.length() > 122 || !filename.matches("^[a-zA-Z\\d.\\s_]+$"))
             throw new InvalidEntryException("Invalid name.");
 
-        int sNode = findDirectoryThroughPath(pathname);
-        if (sNode == -1)
+        int dirSNode = findDirectoryThroughPath(pathname);
+        if (dirSNode == -1)
             throw new VirtualFileNotFoundException("Directory not found in pathname.");
 
-        int[] dirDataBlocks = sNodes[sNode].getDataBlocks();
+        int[] dirDataBlocks = sNodes[dirSNode].getDataBlocks();
 
-        sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(filename);
+        int sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(filename);
         if (sNode == -1)
             throw new VirtualFileNotFoundException("File not found in directory.");
 
@@ -193,9 +193,18 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
                 System.out.println("A Directory can only be deleted if it is clear");
                 return false;
             } else {
-                dirDataBlocks = sNodes[sNode].getDataBlocks();
+                int[] db = sNodes[sNode].getDataBlocks();
 
-                dataControl.clearElement(dirDataBlocks[0]);
+                short entryLength = dataBlocks[dirDataBlocks[0]].getDEntryLength(sNode);
+
+                ZoneId zoneId = ZoneId.systemDefault();
+                long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
+                sNodes[dirSNode].deleteDEntry(time, entryLength);
+
+                dataBlocks[dirDataBlocks[0]].deleteDEntry(sNode, entryLength);
+
+
+                dataControl.clearElement(db[0]);
                 fileInfoControl.clearElement(sNode);
                 return true;
             }

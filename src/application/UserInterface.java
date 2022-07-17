@@ -1,17 +1,18 @@
 package application;
 
+import java.util.Arrays;
 import java.util.Scanner;
 import exceptions.*;
 import structures.FileType;
 
 public class UserInterface {
 
-    public static void main(String args[]) throws InvalidEntryException, InvalidSNodeException, VirtualFileNotFoundException{
+    public static void main(String[] args) throws InvalidEntryException, InvalidSNodeException, VirtualFileNotFoundException{
 
-        FileManager gerenteDeArquivo = new FileManager(Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+        FileManager gerenteDeArquivo = new FileManager(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
 
         String input;
-        String[] comando = new String[3];
+        String[] comando;
         Scanner scanner = new Scanner(System.in);
         System.out.println("Para começar digite um comando ou 'ajuda' para listar os comandos possíveis.");
         System.out.print(">");
@@ -31,8 +32,8 @@ public class UserInterface {
                     break;
                 case "listDirectory":
                     if (conferirArgumentos(comando, 1)) {
-                        gerenteDeArquivo.listDirectory(comando[1]);
-                        
+                        String[] directory =  gerenteDeArquivo.listDirectory(comando[1]);
+                        System.out.println(Arrays.toString(directory));
                     }
                     break;
                 case "deleteFile":
@@ -50,7 +51,6 @@ public class UserInterface {
                 case "saveVirtualDisk":
                     if (conferirArgumentos(comando, 0)) {
                         gerenteDeArquivo.saveVirtualDisk();
-                        
                     }
                     break;
                 case "ajuda":
@@ -69,11 +69,11 @@ public class UserInterface {
     // List of all commands.
     private static void listarComandos() {
         System.out.println("Comando <parametros>");
-        System.out.println("addDirectory <nome do diretorio, nome do arquivo>: Adiciona um diretorio");
-        System.out.println("addFile <nome do diretorio, nome do arquivo, tipo do arquivo, tamanho> : Adiciona um arquivo ");
-        System.out.println("listDirector <nome do diretorio> : Lista os diretorios ");
-        System.out.println("deletFile <nome do diretorio, nome do arquivo>: Excluir arquivo");
-        System.out.println("parseCommandFile <nome do diretorio> :");
+        System.out.println("addDirectory <caminho absoluto do diretorio, nome do novo diretorio>: Adiciona um diretorio");
+        System.out.println("addFile <caminho absoluto do diretorio, nome do arquivo, tipo do arquivo, tamanho> : Adiciona um arquivo ");
+        System.out.println("listDirectory <caminho absoluto do diretorio> : Lista os diretorios ");
+        System.out.println("deletFile <caminho absoluto do diretorio, nome do arquivo>: Excluir arquivo");
+        System.out.println("parseCommandFile <caminho ao arquivo> :");
         System.out.println("saveVirtualDisk: Salva no disco");
         System.out.println("sair: Sair");
     }

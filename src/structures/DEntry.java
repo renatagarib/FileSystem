@@ -2,6 +2,7 @@ package structures;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public class DEntry {
     private int sNodeIdentifier;
@@ -33,14 +34,14 @@ public class DEntry {
         byte[] sNodeIdentifierInBytes = buffer.array();
         //add the bytes, starting at the second one to simulate unsigned integer,
         //into the array that's going to be returned
-        System.arraycopy(sNodeIdentifierInBytes, 2, bytes, placeInTheArray, sNodeIdentifierInBytes.length);
+        System.arraycopy(sNodeIdentifierInBytes, 2, bytes, placeInTheArray, 2);
 
         //update the new position adding the length of the added array
-        placeInTheArray += sNodeIdentifierInBytes.length;
+        placeInTheArray += 2;
 
         //transform entryLength into bytes
         buffer = ByteBuffer.allocate(Short.BYTES);
-        buffer.putInt(entryLength);
+        buffer.putShort(entryLength);
         //rewind it so the first byte is in the right
         buffer.rewind();
         byte[] entryLengthInBytes = buffer.array();
@@ -61,8 +62,9 @@ public class DEntry {
         //transform the fileName in bytes using utf-8
         byte[] fileNameInBytes = fileName.getBytes(StandardCharsets.UTF_8);
         //store it into the array
-        System.arraycopy(entryLengthInBytes, 0, bytes, placeInTheArray, fileNameInBytes.length);
+        System.arraycopy(fileNameInBytes, 0, bytes, placeInTheArray, fileNameInBytes.length);
 
+        System.out.println(Arrays.toString(bytes));
         return bytes;
     }
 

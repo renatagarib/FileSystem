@@ -2,6 +2,7 @@ package application;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 
 import exceptions.*;
 import interfaces.FileManagementInterface;
@@ -20,8 +21,8 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
     public FileManager(int n, int m) {
         sNodes = new SNode[n];
 
-        for (SNode sNode : sNodes) {
-            sNode = new SNode();
+        for (int i = 0; i < n; i++) {
+            sNodes[i] = new SNode();
         }
 
         fileInfoControl = new BitMap(n/8);
@@ -183,8 +184,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             throw new VirtualFileNotFoundException("Directory not found in pathname.");
 
         int[] dirDataBlocks = sNodes[dirSNode].getDataBlocks();
+        System.out.println(Arrays.toString(dirDataBlocks) + "dirDataBlocks tem que ser 0.");
 
         int sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(filename);
+        System.out.println(sNode + " sNode de re.txt, deve ser 1.");
         if (sNode == -1)
             throw new VirtualFileNotFoundException("File not found in directory.");
 
@@ -193,19 +196,25 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             return false;
         } else {
             int[] db = sNodes[sNode].getDataBlocks();
+            System.out.println(Arrays.toString(db) + " data blocks de re.txt");
 
             short entryLength = dataBlocks[dirDataBlocks[0]].getDEntryLength(sNode);
+            System.out.println(entryLength + " tamanho de re.txt");
 
             ZoneId zoneId = ZoneId.systemDefault();
             long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
             sNodes[dirSNode].deleteDEntry(time, entryLength);
+            System.out.println("deletou do diretorio");
 
             dataBlocks[dirDataBlocks[0]].deleteDEntry(sNode, entryLength);
+            System.out.println("deletou do data block");
 
             for (int entry : db) {
                 dataControl.clearElement(entry);
+                System.out.println(dataControl);
             }
             fileInfoControl.clearElement(sNode);
+            System.out.println(fileInfoControl);
             return true;
         }
     }

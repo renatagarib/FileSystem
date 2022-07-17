@@ -100,11 +100,12 @@ public class DataBlock {
             }
 
             entryLength = turnBytesIntoShort(data[i+2], data[i+3]);
+            System.arraycopy(data, i, newData, i, entryLength);
         }
 
-        for (int i = deletedEntryPlace; i < data.length - 6; i+=entryLength) {
+        for (int i = deletedEntryPlace; i < data.length - 6; i += entryLength) {
             entryLength = turnBytesIntoShort(data[i+2], data[i+3]);
-
+            System.arraycopy(data, i, newData, i - length, entryLength);
             if (entryLength == 0)
                 break;
         }

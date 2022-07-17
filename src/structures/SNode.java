@@ -1,5 +1,7 @@
 package structures;
 
+import java.util.Arrays;
+
 public class SNode {
     private FileType fileType;
     private byte generation;
@@ -54,5 +56,15 @@ public class SNode {
 
     public int[] getDataBlocks() {
         return dataBlocks;
+    }
+
+    @Override
+    public String toString() {
+        return "File Type: " + fileType + "/n" +
+                "Generation: " + generation + "/n" +
+                "Creation Date: " + creationDate + "/n" +
+                "Modification Date: " + modificationDate + "/n" +
+                "Length: " + length + "/n" +
+                "Data Blocks: " + Arrays.toString(dataBlocks);
     }
 }

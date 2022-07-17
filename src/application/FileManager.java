@@ -188,28 +188,20 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         if (sNode == -1)
             throw new VirtualFileNotFoundException("File not found in directory.");
 
-        if (sNodes[sNode].getFileType() == DIRECTORY) {
-            if (sNodes[sNode].getLength() > 0) {
-                System.out.println("A Directory can only be deleted if it is clear");
-                return false;
-            } else {
-                int[] db = sNodes[sNode].getDataBlocks();
-
-                short entryLength = dataBlocks[dirDataBlocks[0]].getDEntryLength(sNode);
-
-                ZoneId zoneId = ZoneId.systemDefault();
-                long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
-                sNodes[dirSNode].deleteDEntry(time, entryLength);
-
-                dataBlocks[dirDataBlocks[0]].deleteDEntry(sNode, entryLength);
-
-
-                dataControl.clearElement(db[0]);
-                fileInfoControl.clearElement(sNode);
-                return true;
-            }
+        if (sNodes[sNode].getFileType() == DIRECTORY && sNodes[sNode].getLength() > 0) {
+            System.out.println("A Directory can only be deleted if it is clear");
+            return false;
         } else {
             int[] db = sNodes[sNode].getDataBlocks();
+
+            short entryLength = dataBlocks[dirDataBlocks[0]].getDEntryLength(sNode);
+
+            ZoneId zoneId = ZoneId.systemDefault();
+            long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
+            sNodes[dirSNode].deleteDEntry(time, entryLength);
+
+            dataBlocks[dirDataBlocks[0]].deleteDEntry(sNode, entryLength);
+
             for (int entry : db) {
                 dataControl.clearElement(entry);
             }
@@ -244,17 +236,21 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     @Override
     public String getSNodeInfo(int snodeId) throws InvalidSNodeException {
-        return null;
+        if (snodeId >= 0 && snodeId < sNodes.length)
+            return "SNode " + snodeId + ":/n" +
+                    sNodes[snodeId].toString();
+        else
+            throw new InvalidSNodeException("Invalid S Node ID.");
     }
 
     @Override
     public String getSnodeBitmap() {
-        return null;
+        return "S Node Bitmap:\n" + fileInfoControl.toString();
     }
 
     @Override
     public String getDataBlockBitmap() {
-        return null;
+        return "Data Block Bitmap:\n" + dataControl.toString();
     }
 
     private int findDirectoryThroughPath(String pathname) {

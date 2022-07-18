@@ -55,14 +55,11 @@ public class DataBlock {
     public int lookForDEntry(String filename) {
         short nextEntry = 1;
         for (int i = 0; i < data.length - 6; i += nextEntry) {
-            System.out.println("começo do for " + i);
             //checks if the fileNameLength if the same as the parameter length
             if (data[i+5] == filename.length()) {
 
                 String name = turnFileNameIntoString(data[i+5], i+6);
                 if (name.equals(filename)) {
-                    System.out.println(i);
-                    System.out.println(Arrays.toString(data));
                     return turnBytesIntoUnsignedInteger(data[i], data[i+1]);
                 }
             }

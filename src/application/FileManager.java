@@ -184,7 +184,6 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             throw new VirtualFileNotFoundException("Directory not found in pathname.");
 
         int[] dirDataBlocks = sNodes[dirSNode].getDataBlocks();
-        System.out.println(Arrays.toString(dirDataBlocks) + "dirDataBlocks tem que ser 0.");
 
         int sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(filename);
 
@@ -207,10 +206,8 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
             for (int entry : db) {
                 dataControl.clearElement(entry);
-                System.out.println(dataControl);
             }
             fileInfoControl.clearElement(sNode);
-            System.out.println(fileInfoControl);
             return true;
         }
     }
@@ -260,7 +257,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     private int findDirectoryThroughPath(String pathname) {
         String[] directories = pathname.split("/");
-        System.out.println(Arrays.toString(directories));
+
         //start at the root sNode
         int sNode = 0;
         //array for the data blocks from each sNode
@@ -268,11 +265,8 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         //iterate on the directories from the path
         if (directories.length >= 2) {
             for (int i = 1; i < directories.length; i++) {
-                System.out.println(directories[i]);
                 //get the data blocks from the sNode
-                System.out.println(sNode);
                 dirDataBlocks = sNodes[sNode].getDataBlocks();
-                System.out.println(Arrays.toString(dirDataBlocks));
 
                 //look in the data block from the last directory the sNode for the next directory
                 sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(directories[i]);

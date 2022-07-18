@@ -42,7 +42,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
 
         //add the sNode to the sNodes array
-        sNodes[0].reUseSNode(DIRECTORY, time, time, (short) 0, new int[] {0});
+        sNodes[0].reUseSNode(DIRECTORY, time, time, (short) 1, new int[] {0});
 
         //change the bitmap element of the sNode and dataBlock to 1
         fileInfoControl.addElement(0);
@@ -187,27 +187,23 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         System.out.println(Arrays.toString(dirDataBlocks) + "dirDataBlocks tem que ser 0.");
 
         int sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(filename);
-        System.out.println(sNode + " sNode de re.txt, deve ser 1.");
+
         if (sNode == -1)
             throw new VirtualFileNotFoundException("File not found in directory.");
 
         if (sNodes[sNode].getFileType() == DIRECTORY && sNodes[sNode].getLength() > 0) {
-            System.out.println("A Directory can only be deleted if it is clear");
+            System.out.println("A Directory can only be deleted if it is empty");
             return false;
         } else {
             int[] db = sNodes[sNode].getDataBlocks();
-            System.out.println(Arrays.toString(db) + " data blocks de re.txt");
 
             short entryLength = dataBlocks[dirDataBlocks[0]].getDEntryLength(sNode);
-            System.out.println(entryLength + " tamanho de re.txt");
 
             ZoneId zoneId = ZoneId.systemDefault();
             long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
             sNodes[dirSNode].deleteDEntry(time, entryLength);
-            System.out.println("deletou do diretorio");
 
             dataBlocks[dirDataBlocks[0]].deleteDEntry(sNode, entryLength);
-            System.out.println("deletou do data block");
 
             for (int entry : db) {
                 dataControl.clearElement(entry);
@@ -264,19 +260,26 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     private int findDirectoryThroughPath(String pathname) {
         String[] directories = pathname.split("/");
+        System.out.println(Arrays.toString(directories));
         //start at the root sNode
         int sNode = 0;
         //array for the data blocks from each sNode
         int[] dirDataBlocks;
         //iterate on the directories from the path
-        for (String directory : directories) {
-            //get the data blocks from the sNode
-            dirDataBlocks = sNodes[sNode].getDataBlocks();
-            //look in the data block from the last directory the sNode for the next directory
-            sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(directory);
-            //if the directory isn't into the last directory it returns -1
-            if (sNode == -1) {
-                return -1; //the path is not right
+        if (directories.length >= 2) {
+            for (int i = 1; i < directories.length; i++) {
+                System.out.println(directories[i]);
+                //get the data blocks from the sNode
+                System.out.println(sNode);
+                dirDataBlocks = sNodes[sNode].getDataBlocks();
+                System.out.println(Arrays.toString(dirDataBlocks));
+
+                //look in the data block from the last directory the sNode for the next directory
+                sNode = dataBlocks[dirDataBlocks[0]].lookForDEntry(directories[i]);
+                //if the directory isn't into the last directory it returns -1
+                if (sNode == -1) {
+                    return -1; //the path is not right
+                }
             }
         }
         return sNode;

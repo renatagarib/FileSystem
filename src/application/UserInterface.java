@@ -28,7 +28,19 @@ public class UserInterface {
                     break;
                 case "addFile":
                     if (conferirArgumentos(comando, 4))
-                        gerenteDeArquivo.addFile(comando[1], comando[2], FileType.valueOf(comando[3]), Integer.parseInt(comando[4]) );
+                        try {
+                            gerenteDeArquivo.addFile(comando[1], comando[2], FileType.valueOf(comando[3]), Integer.parseInt(comando[4]) );
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Types of files:\n" +
+                                                "UNKNOWN\n" +
+                                                "REGULAR\n" +
+                                                "CHARACTER_DEVICE\n" +
+                                                "BLOCK_DEVICE\n" +
+                                                "FIFO\n" +
+                                                "SOCKET\n" +
+                                                "SYMBOLIC_LINK");
+                        }
+
                     break;
                 case "listDirectory":
                     if (conferirArgumentos(comando, 1)) {

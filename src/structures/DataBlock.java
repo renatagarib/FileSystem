@@ -46,27 +46,29 @@ public class DataBlock {
     }
 
     // DEntry:
-    // 2 bytes -> sNode
-    // 2 bytes -> entryLength
-    // 1 byte  -> fileType
-    // 1 byte  -> fileNameLength = x
-    // x bytes -> fileName
+    // 2 bytes -> sNode = i i+1
+    // 2 bytes -> entryLength = i+2, i+3
+    // 1 byte  -> fileType = i+4
+    // 1 byte  -> fileNameLength = i+5
+    // x bytes -> fileName i+6
 
     public int lookForDEntry(String filename) {
-        for (int i = 2; i < data.length - 6; i++) {
-
+        short nextEntry = 1;
+        for (int i = 0; i < data.length - 6; i += nextEntry) {
+            System.out.println("começo do for " + i);
             //checks if the fileNameLength if the same as the parameter length
-            if (data[i+3] == filename.length()) {
+            if (data[i+5] == filename.length()) {
 
-                String name = turnFileNameIntoString(data[i+3], i+4);
+                String name = turnFileNameIntoString(data[i+5], i+6);
                 if (name.equals(filename)) {
-                    return turnBytesIntoUnsignedInteger(data[i-2], data[i-1]);
+                    System.out.println(i);
+                    System.out.println(Arrays.toString(data));
+                    return turnBytesIntoUnsignedInteger(data[i], data[i+1]);
                 }
-
-                short nextEntry = turnBytesIntoShort(data[i], data[i+1]);
-
-                i += nextEntry - 1;
             }
+            nextEntry = turnBytesIntoShort(data[i+2], data[i+3]);
+            if (nextEntry == 0)
+                break;
         }
         return -1;
     }
@@ -114,23 +116,21 @@ public class DataBlock {
     }
 
     // DEntry:
-    // 2 bytes -> sNode
-    // 2 bytes -> entryLength -> i, i+1
-    // 1 byte  -> fileType -> i+2
-    // 1 byte  -> fileNameLength -> i+3
+    // 2 bytes -> sNode -> i, i+1
+    // 2 bytes -> entryLength -> i+2, i+3
+    // 1 byte  -> fileType -> i+4
+    // 1 byte  -> fileNameLength -> i+5
     // x bytes -> fileName
 
     public String[] toStringArray() {
         ArrayList<String> entries = new ArrayList<>();
+        short entryLength;
 
-        for (int i = 2; i < data.length - 6; i++) {
-            if (data[i-1] != 0 || data[i-2] != 0) {
-                short entryLength = turnBytesIntoShort(data[i], data[i+1]);
-
-                String name = turnFileNameIntoString(data[i+3], i+4);
+        for (int i = 0; i < data.length - 6; i += entryLength) {
+            entryLength = turnBytesIntoShort(data[i+2], data[i+3]);
+            if (entryLength != 0) {
+                String name = turnFileNameIntoString(data[i+5], i+6);
                 entries.add(name);
-
-                i += entryLength -1;
             } else {
                 return entries.toArray(new String[0]);
             }

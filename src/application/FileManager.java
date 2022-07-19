@@ -1,5 +1,12 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
@@ -10,6 +17,7 @@ import interfaces.VirtualDiskInspectionInterface;
 import structures.*;
 
 import static structures.FileType.DIRECTORY;
+import static structures.FileType.valueOf;
 
 public class FileManager implements FileManagementInterface, VirtualDiskInspectionInterface {
 
@@ -38,11 +46,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     private void addRootDirectory() {
         //get the time of creation
-        ZoneId zoneId = ZoneId.systemDefault();
-        long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
+        long time = getTime();
 
         //add the sNode to the sNodes array
-        sNodes[0].reUseSNode(DIRECTORY, time, time, (short) 1, new int[] {0});
+        sNodes[0].reUseSNode(DIRECTORY, time, time, (short) 0, new int[] {0});
 
         //change the bitmap element of the sNode and dataBlock to 1
         fileInfoControl.addElement(0);
@@ -57,57 +64,58 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             throw new InvalidEntryException("Invalid name.");
 
 
-        int dirSNode = fileInfoControl.findClearSpot();
-        int dirDataBlock = dataControl.findClearSpot();
+        int sNode = fileInfoControl.findClearSpot();
+        int[] dataBlock = dataControl.findClearSpots(1);
 
-        //checks if there is a free SNode
-        if (dirSNode > 0) { //return -1 if there isn't a free space
-            //checks if there is a free DataBlock
-            if (dirDataBlock > 0) { //return -1 if there isn't a free space
-                short entryLength = (short) (filename.length() + 6);
+        //checks if there is a free SNode and a free data block
+        if (sNode > 0 || dataBlock[0] > 0) {
+            short entryLength = (short) (filename.length() + 6);
 
-                //turn entryLength into a multiple of 16
-                while (entryLength % 16 != 0) {
-                    entryLength ++;
-                }
-
-                //find the directory where the new directory will go
-                int sNode = findDirectoryThroughPath(pathname);
-                //if the directory isn't found
-                if (sNode == -1)
-                    throw new InvalidEntryException("Directory not found in pathname.");
-                //get the data blocks from the last directory in the path (where the new directory will be added)
-                int[] dirDataBlocks = sNodes[sNode].getDataBlocks();
-                //check for repeated filenames
-                if (dataBlocks[dirDataBlocks[0]].lookForDEntry(filename) != -1)
-                    throw new InvalidEntryException("There is already a file named " + filename + " in the chosen directory.");
-                //create a dEntry for the new directory
-                DEntry dir = new DEntry(dirSNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
-                if (dataBlocks[dirDataBlocks[0]].addDEntry(dir)) {
-                    ZoneId zoneId = ZoneId.systemDefault();
-                    long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
-
-                    //reuse SNode for the new directory (so that the generation var add 1)
-                    sNodes[dirSNode].reUseSNode(DIRECTORY, time, time, (short) 0, new int[] {dirDataBlock});
-
-                    //add DEntry into de directory's sNode
-                    sNodes[sNode].addDEntry(time, entryLength);
-
-                    //update bitmaps
-                    fileInfoControl.addElement(dirSNode);
-                    dataControl.addElement(dirDataBlock);
-                    return true;
-                } else {
-                    return false;
-                }
-
+            //turn entryLength into a multiple of 16
+            while (entryLength % 16 != 0) {
+                entryLength ++;
             }
+
+            //find the directory where the new directory will go
+            int dirSNode = findDirectoryThroughPath(pathname);
+            //if the directory isn't found
+            if (dirSNode == -1)
+                throw new InvalidEntryException("Directory not found in pathname.");
+
+            //get the data blocks from the last directory in the path (where the new directory will be added)
+            int[] dirDataBlocks = sNodes[dirSNode].getDataBlocks();
+
+            //check for repeated filenames
+            if (dataBlocks[dirDataBlocks[0]].lookForDEntry(filename) != -1)
+                throw new InvalidEntryException("There is already a file named " + filename + " in the chosen directory.");
+
+            //create a dEntry for the new directory
+            DEntry dir = new DEntry(sNode, entryLength, DIRECTORY, (byte) filename.length(), filename);
+            //check if the addition of the DEntry at the directory was successful
+            if (dataBlocks[dirDataBlocks[0]].addDEntry(dir)) {
+
+                long time = getTime();
+
+                //reuse SNode for the new directory (so that the generation var add 1)
+                sNodes[sNode].reUseSNode(DIRECTORY, time, time, (short) 0, dataBlock);
+
+                //add DEntry into de directory's sNode
+                sNodes[dirSNode].addDEntry(time, entryLength);
+
+                //update bitmaps
+                fileInfoControl.addElement(sNode);
+                dataControl.addElement(dataBlock[0]);
+                return true;
+            }
+
+            return false;
         }
         return false;
     }
 
     @Override
     public boolean addFile(String pathname, String filename, FileType type, int length) throws InvalidEntryException, VirtualFileNotFoundException {
+        //catch exceptions before function execution
         if (!pathname.contains("/"))
             throw new InvalidEntryException("Invalid pathname.");
         if (filename.length() > 122 || !filename.matches("^[a-zA-Z\\d.\\s_]+$"))
@@ -118,17 +126,11 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             throw new InvalidEntryException("File length exceeds the maximum length of 512 bytes.");
 
         int fileSNode = fileInfoControl.findClearSpot();
-        int[] fileDataBlock = new int[(int) Math.ceil(length/128.0)];
+        int amount = (int) Math.ceil(length/128.0);
+        int[] fileDataBlock = dataControl.findClearSpots(amount);
 
-        for (int i = 0; i < fileDataBlock.length; i++) {
-            fileDataBlock[i] = dataControl.findClearSpot();
-            if (fileDataBlock[i] == -1) {
-                System.out.println("Storage is full.");
-                return false;
-            }
-        }
 
-        if (fileSNode < 0) {
+        if (fileSNode < 0 || fileDataBlock[0] < 0) {
             System.out.println("Storage is full.");
             return false;
         }
@@ -153,8 +155,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         //create a dEntry for the new file
         DEntry file = new DEntry(fileSNode, entryLength, type, (byte) filename.length(), filename);
         if (dataBlocks[dirDataBlocks[0]].addDEntry(file)) {
-            ZoneId zoneId = ZoneId.systemDefault();
-            long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
+            long time = getTime();
 
             //reuse SNode for the new directory (so that the generation var add 1)
             sNodes[fileSNode].reUseSNode(type, time, time, (short) length, fileDataBlock);
@@ -198,8 +199,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
             short entryLength = dataBlocks[dirDataBlocks[0]].getDEntryLength(sNode);
 
-            ZoneId zoneId = ZoneId.systemDefault();
-            long time = LocalDateTime.now().atZone(zoneId).toEpochSecond();
+            long time = getTime();
             sNodes[dirSNode].deleteDEntry(time, entryLength);
 
             dataBlocks[dirDataBlocks[0]].deleteDEntry(sNode, entryLength);
@@ -228,7 +228,53 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     @Override
     public boolean parseCommandFile(String pathname) {
-        return false;
+
+        try {
+            FileReader fileReader = new FileReader(pathname);
+
+            String line;
+
+            BufferedReader commandFile = new BufferedReader(fileReader);
+
+            while ((line = commandFile.readLine()) != null) {
+                String[] commands = line.split(" ");
+
+                switch (commands[0]) {
+                    case "addFile":
+                        FileType fileType = valueOf(commands[3].toUpperCase());
+                        try {
+                            addFile(commands[1], commands[2], fileType, Integer.parseInt(commands[4]));
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            System.out.println("Comando: '" + line + "' nao esta no formato correto.");
+                        }
+
+                        break;
+                    case "addDir":
+                        try {
+                            addDirectory(commands[1], commands[2]);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            System.out.println("Comando: '" + line + "' nao esta no formato correto.");
+                        }
+                        break;
+                    case "delete":
+                        try {
+                            deleteFile(commands[1], commands[2]);
+                        } catch (ArrayIndexOutOfBoundsException e) {
+                            System.out.println("Comando: '" + line + "' nao esta no formato correto.");
+                        }
+
+                        break;
+                }
+            }
+
+            return true;
+
+        } catch (IOException e) {
+            System.out.println("Arquivo nao encontrado.");
+            return false;
+        } catch (VirtualFileNotFoundException | InvalidEntryException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -239,7 +285,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
     @Override
     public String getSNodeInfo(int snodeId) throws InvalidSNodeException {
         if (snodeId >= 0 && snodeId < sNodes.length)
-            return "SNode " + snodeId + ":/n" +
+            return "SNode " + snodeId + ":\n" +
                     sNodes[snodeId].toString();
         else
             throw new InvalidSNodeException("Invalid S Node ID.");
@@ -247,7 +293,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     @Override
     public String getSnodeBitmap() {
-        return "S Node Bitmap:\n" + fileInfoControl.toString();
+        return "SNode Bitmap:\n" + fileInfoControl.toString();
     }
 
     @Override
@@ -277,5 +323,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             }
         }
         return sNode;
+    }
+
+    private long getTime() {
+        ZoneId zoneId = ZoneId.systemDefault();
+        return LocalDateTime.now().atZone(zoneId).toEpochSecond();
     }
 }

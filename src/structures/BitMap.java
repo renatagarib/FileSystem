@@ -33,6 +33,29 @@ public class BitMap {
         return -1;
     }
 
+    public int[] findClearSpots(int amount) { //try to find a clear element
+        int[] spots = new int[amount];
+
+        int placeInTheArray = 0;
+        for (int i = 0; i < (elements.length * 8); i++) {
+            if (getElement(i) == 0) {
+                spots[placeInTheArray] = i;
+                placeInTheArray ++;
+
+                if (placeInTheArray >= amount)
+                    break;
+            }
+        }
+
+        if (placeInTheArray != amount) {
+            for (int i = 0; i < amount; i++) {
+                spots[i] = -1;
+            }
+        }
+        return spots;
+    }
+
+
     @Override
     public String toString() {
         StringBuilder bitmap = new StringBuilder();
@@ -40,9 +63,9 @@ public class BitMap {
         for (int i = 0; i < (elements.length * 8); i++) {
             bitmap.append(i).append(": ");
             if (getElement(i) == 0) {
-                bitmap.append("free/n");
+                bitmap.append("free\n");
             } else {
-                bitmap.append("occupied/n");
+                bitmap.append("occupied\n");
             }
         }
 

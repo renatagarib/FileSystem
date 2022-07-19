@@ -1,6 +1,9 @@
 package structures;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 public class SNode {
     private FileType fileType;
@@ -60,11 +63,13 @@ public class SNode {
 
     @Override
     public String toString() {
-        return "File Type: " + fileType + "/n" +
-                "Generation: " + generation + "/n" +
-                "Creation Date: " + creationDate + "/n" +
-                "Modification Date: " + modificationDate + "/n" +
-                "Length: " + length + "/n" +
+        DateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm:ss");
+
+        return "File Type: " + fileType + "\n" +
+                "Generation: " + generation + "\n" +
+                "Creation Date: " + df.format(creationDate) + "\n" +
+                "Modification Date: " + df.format(modificationDate) + "\n" +
+                "Length: " + length + "\n" +
                 "Data Blocks: " + Arrays.toString(dataBlocks);
     }
 }

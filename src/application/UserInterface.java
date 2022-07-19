@@ -37,7 +37,7 @@ public class UserInterface {
                 case "addFile":
                     if (conferirArgumentos(comando, 4))
                         try {
-                            if (gerenteDeArquivo.addFile(comando[1], comando[2], FileType.valueOf(comando[3]), Integer.parseInt(comando[4])))
+                            if (gerenteDeArquivo.addFile(comando[1], comando[2], FileType.valueOf(comando[3].toUpperCase()), Integer.parseInt(comando[4])))
                                 System.out.println("Arquivo " + comando[2] + " adicionado com sucesso.");
                             else
                                 System.out.println("Falha ao adicionar arquivo " + comando[2] + ".");
@@ -93,7 +93,9 @@ public class UserInterface {
                     break;
                 case "parseCommandFile":
                     if (conferirArgumentos(comando, 1)) {
-                        if (!gerenteDeArquivo.parseCommandFile(comando[1]))
+                        if (gerenteDeArquivo.parseCommandFile(comando[1]))
+                            System.out.println("Arquivo de comandos lido com sucesso.");
+                        else
                             System.out.println("Falha ao ler arquivo de comandos.");
                     }
                     break;
@@ -126,6 +128,7 @@ public class UserInterface {
                     if (conferirArgumentos(comando, 0)) {
                         System.out.println(gerenteDeArquivo.getDataBlockBitmap());
                     }
+                    break;
                 default:
                     System.out.println("Comando "+ comando[0] +" nao encontrado.");
                     listarComandos();

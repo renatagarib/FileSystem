@@ -63,7 +63,7 @@ public class DEntry {
         byte[] fileNameInBytes = fileName.getBytes(StandardCharsets.UTF_8);
         //store it into the array
         System.arraycopy(fileNameInBytes, 0, bytes, placeInTheArray, fileNameInBytes.length);
-        
+
         return bytes;
     }
 

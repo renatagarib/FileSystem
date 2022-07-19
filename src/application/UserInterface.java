@@ -23,13 +23,24 @@ public class UserInterface {
 
             switch (comando[0]) {
                 case "addDirectory":
-                    if (conferirArgumentos(comando, 2))
-                        gerenteDeArquivo.addDirectory(comando[1], comando[2]);
+                    try {
+                        if (conferirArgumentos(comando, 2))
+                            if (gerenteDeArquivo.addDirectory(comando[1], comando[2]))
+                                System.out.println("Diretorio " + comando[2] + " adicionado com sucesso.");
+                            else
+                                System.out.println("Falha ao adicionar diretorio " + comando[2] + ".");
+                    } catch (InvalidEntryException | VirtualFileNotFoundException e) {
+                        System.out.println(e);
+                    }
+
                     break;
                 case "addFile":
                     if (conferirArgumentos(comando, 4))
                         try {
-                            gerenteDeArquivo.addFile(comando[1], comando[2], FileType.valueOf(comando[3]), Integer.parseInt(comando[4]) );
+                            if (gerenteDeArquivo.addFile(comando[1], comando[2], FileType.valueOf(comando[3]), Integer.parseInt(comando[4])))
+                                System.out.println("Arquivo " + comando[2] + " adicionado com sucesso.");
+                            else
+                                System.out.println("Falha ao adicionar arquivo " + comando[2] + ".");
                         } catch (IllegalArgumentException e) {
                             System.out.println("Types of files:\n" +
                                                 "UNKNOWN\n" +
@@ -39,38 +50,85 @@ public class UserInterface {
                                                 "FIFO\n" +
                                                 "SOCKET\n" +
                                                 "SYMBOLIC_LINK");
+                        } catch (InvalidEntryException | VirtualFileNotFoundException e) {
+                            System.out.println(e);
                         }
 
                     break;
                 case "listDirectory":
                     if (conferirArgumentos(comando, 1)) {
-                        String[] directory =  gerenteDeArquivo.listDirectory(comando[1]);
-                        System.out.println(Arrays.toString(directory));
+                        try {
+                            String[] files =  gerenteDeArquivo.listDirectory(comando[1]);
+
+                            String[] path = comando[1].split("/");
+
+                            StringBuilder result;
+                            if (path.length <= 1)
+                                result = new StringBuilder("Diretorio '/':\n");
+                            else
+                                result = new StringBuilder("Diretorio " + path[path.length - 1] + ":\n");
+
+                            for (String file : files) {
+                                result.append(file).append("\n");
+                            }
+                            System.out.println(result);
+
+                        } catch (InvalidEntryException | VirtualFileNotFoundException e) {
+                            System.out.println(e);
+                        }
+
                     }
                     break;
                 case "deleteFile":
                     if (conferirArgumentos(comando, 2)) {
-                        gerenteDeArquivo.deleteFile(comando[1], comando[2]);
-                        System.out.println("Processo "+ comando[1] +" excluído.");
+                        try {
+                            if (gerenteDeArquivo.deleteFile(comando[1], comando[2]))
+                                System.out.println("Objeto "+ comando[2] +" excluido com sucesso.");
+
+                        } catch (InvalidEntryException | VirtualFileNotFoundException e) {
+                            System.out.println(e);
+                        }
+
                     }
                     break;
                 case "parseCommandFile":
                     if (conferirArgumentos(comando, 1)) {
-                        gerenteDeArquivo.parseCommandFile(comando[1]);
-                        System.out.println("Memoria esvaziada.");
+                        if (!gerenteDeArquivo.parseCommandFile(comando[1]))
+                            System.out.println("Falha ao ler arquivo de comandos.");
                     }
                     break;
                 case "saveVirtualDisk":
                     if (conferirArgumentos(comando, 0)) {
-                        gerenteDeArquivo.saveVirtualDisk();
+                        if (gerenteDeArquivo.saveVirtualDisk())
+                            System.out.println("Estruturas salvas em disco com sucesso.");
+                        else
+                            System.out.println("Falha ao salvar as estruturas em disco.");
                     }
                     break;
                 case "ajuda":
-                            listarComandos();
-                            break;
-                        default:
-                            System.out.println("Comando "+ comando[0] +" nao encontrado.");
-                            listarComandos();
+                    listarComandos();
+                    break;
+                case "getSNodeInfo":
+                    if (conferirArgumentos(comando, 1)) {
+                        try {
+                            System.out.println(gerenteDeArquivo.getSNodeInfo(Integer.parseInt(comando[1])));
+                        } catch (InvalidSNodeException e) {
+                            System.out.println(e);
+                        }
+                    }
+                    break;
+                case "getSNodeBitmap":
+                    if (conferirArgumentos(comando, 0)) {
+                        System.out.println(gerenteDeArquivo.getSnodeBitmap());
+                    }
+                    break;
+                case "getDataBlockBitmap":
+                    if (conferirArgumentos(comando, 0)) {
+                        System.out.println(gerenteDeArquivo.getDataBlockBitmap());
+                    }
+                default:
+                    System.out.println("Comando "+ comando[0] +" nao encontrado.");
+                    listarComandos();
                     }
             System.out.print(">");
             input = scanner.nextLine();
@@ -84,9 +142,12 @@ public class UserInterface {
         System.out.println("addDirectory <caminho absoluto do diretorio, nome do novo diretorio>: Adiciona um diretorio");
         System.out.println("addFile <caminho absoluto do diretorio, nome do arquivo, tipo do arquivo, tamanho> : Adiciona um arquivo ");
         System.out.println("listDirectory <caminho absoluto do diretorio> : Lista os diretorios ");
-        System.out.println("deletFile <caminho absoluto do diretorio, nome do arquivo>: Excluir arquivo");
+        System.out.println("deleteFile <caminho absoluto do diretorio, nome do arquivo>: Exclui arquivo");
         System.out.println("parseCommandFile <caminho ao arquivo> :");
         System.out.println("saveVirtualDisk: Salva no disco");
+        System.out.println("getSNodeInfo <ID do SNode>: Lista informacoes do SNode");
+        System.out.println("getSNodeBitmap: Imprime o bitmap referente aos SNodes");
+        System.out.println("getDataBlockBitmap: Imprime o bitmap referente aos Blocos de Dados");
         System.out.println("sair: Sair");
     }
     /**

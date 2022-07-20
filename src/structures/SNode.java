@@ -95,6 +95,14 @@ public class SNode {
 
     }
 
+    public void clear() {
+        this.fileType = null;
+        this.creationDate = 0;
+        this.modificationDate = 0;
+        this.length = 0;
+        this.dataBlocks = null;
+    }
+
     public void addDEntry(long date, short size) {
         this.modificationDate = date;
         this.length += size;

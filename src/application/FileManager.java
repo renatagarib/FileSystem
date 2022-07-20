@@ -3,6 +3,9 @@ package application;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 import exceptions.*;
@@ -15,26 +18,34 @@ import static structures.FileType.valueOf;
 
 public class FileManager implements FileManagementInterface, VirtualDiskInspectionInterface {
 
+    private Path binaryFile;
     private SNode[] sNodes;
     private BitMap fileInfoControl;
     private DataBlock[] dataBlocks;
     private BitMap dataControl;
 
-    public FileManager(int n, int m) {
-        sNodes = new SNode[n];
 
-        for (int i = 0; i < n; i++) {
-            sNodes[i] = new SNode();
-        }
+    public FileManager(String binaryFile, int n, int m) throws IOException {
+        this.binaryFile = Paths.get(binaryFile);
 
-        fileInfoControl = new BitMap(n/8);
-        dataBlocks = new DataBlock[m];
-        dataControl = new BitMap(m/8);
+        if (readBinaryFile(this.binaryFile).length == 0) {
+            sNodes = new SNode[n];
 
-        addRootDirectory();
+            for (int i = 0; i < n; i++) {
+                sNodes[i] = new SNode();
+            }
 
-        for (int i = 0; i < m; i++) {
-            dataBlocks[i] = new DataBlock();
+            fileInfoControl = new BitMap(n/8);
+            dataBlocks = new DataBlock[m];
+            dataControl = new BitMap(m/8);
+
+            addRootDirectory();
+
+            for (int i = 0; i < m; i++) {
+                dataBlocks[i] = new DataBlock();
+            }
+        } else {
+
         }
     }
 
@@ -48,6 +59,16 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         //change the bitmap element of the sNode and dataBlock to 1
         fileInfoControl.addElement(0);
         dataControl.addElement(0);
+    }
+
+    private byte[] readBinaryFile(Path path) throws IOException {
+        try {
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            byte[] fileBytes = {};
+            Files.write(path, fileBytes);
+            return fileBytes;
+        }
     }
 
     @Override
@@ -273,7 +294,31 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     @Override
     public boolean saveVirtualDisk() {
-        return false;
+
+        int size = (sNodes.length * 28) + fileInfoControl.getSize() + (dataBlocks.length * 128) + dataControl.getSize();
+        byte[] fileManagerIntoBytes = new byte[size];
+
+        int placeInTheArray = 0;
+
+        for (SNode sNode : sNodes) {
+            byte[] sNodeInBytes = sNode.toByteArray();
+            System.arraycopy(sNodeInBytes, 0, fileManagerIntoBytes, placeInTheArray, sNodeInBytes.length);
+            placeInTheArray += sNodeInBytes.length;
+        }
+
+        System.arraycopy(fileInfoControl.toByteArray(), 0, fileManagerIntoBytes, placeInTheArray, fileInfoControl.getSize());
+        placeInTheArray += fileInfoControl.getSize();
+
+        for (DataBlock dataBlock : dataBlocks) {
+            byte[] dataBlockInBytes = dataBlock.toByteArray();
+            System.arraycopy(dataBlockInBytes, 0, fileManagerIntoBytes, placeInTheArray, dataBlockInBytes.length);
+            placeInTheArray += dataBlockInBytes.length;
+        }
+
+        System.arraycopy(dataControl.toByteArray(), 0, fileManagerIntoBytes, placeInTheArray, dataControl.getSize());
+
+        Files.write(binaryFile, fileManagerIntoBytes);
+        return true;
     }
 
     @Override

@@ -55,6 +55,10 @@ public class BitMap {
         return spots;
     }
 
+    public int getSize() {
+        return elements.length;
+    }
+
 
     @Override
     public String toString() {

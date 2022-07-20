@@ -20,6 +20,10 @@ public class SNode {
         generation = 0;
     }
 
+    public SNode(byte[] bytes) {
+
+    }
+
     public void reUseSNode(FileType fileType, long creationDate, long modificationDate, short length, int[] dataBlocks) {
         this.fileType = fileType;
         this.generation ++;

@@ -1,5 +1,9 @@
 package application;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Scanner;
 import exceptions.*;
@@ -7,9 +11,9 @@ import structures.FileType;
 
 public class UserInterface {
 
-    public static void main(String[] args) throws InvalidEntryException, InvalidSNodeException, VirtualFileNotFoundException{
+    public static void main(String[] args) throws InvalidEntryException, InvalidSNodeException, VirtualFileNotFoundException, IOException {
 
-        FileManager gerenteDeArquivo = new FileManager(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+        FileManager gerenteDeArquivo = new FileManager(args[0] ,Integer.parseInt(args[1]), Integer.parseInt(args[2]));
 
         String input;
         String[] comando;

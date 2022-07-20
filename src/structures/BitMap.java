@@ -14,30 +14,30 @@ public class BitMap {
     }
 
     public void addElement(int location) {
-        int place = location/8; //add element to the byte
-        elements[place] |= (1 << (7 - location % 8));
+        int place = location/8; //byte which the element will go;
+        elements[place] |= (1 << (7 - location % 8)); //change to 1 the bit referent to the element
     }
 
     public void clearElement(int location) {
-        int place = location/8; //clear the element
-        elements[place] &= ~(1 << (7 - location % 8));
+        int place = location/8; //byte which the element is;
+        elements[place] &= ~(1 << (7 - location % 8));//change to 0 the bit referent to the element
     }
 
     public byte getElement(int location) {
-        int place = location/8; //locate a element 
-        return (byte)((elements[place] >> (7 - location % 8)) & 1);
+        int place = location/8; //byte which the element is;
+        return (byte)((elements[place] >> (7 - location % 8)) & 1);//return the value of the bit referent to the element
     }
 
     public int findClearSpot() { //try to find a clear element
         for (int i = 0; i < (elements.length * 8); i++) {
             if (getElement(i) == 0) {
-                return i;
+                return i; //return the location
             }
         }
-        return -1;
+        return -1; //if there isn't any return -1
     }
 
-    public int[] findClearSpots(int amount) { //try to find a clear element
+    public int[] findClearSpots(int amount) { //try to find multiple clear elements
         int[] spots = new int[amount];
 
         int placeInTheArray = 0;

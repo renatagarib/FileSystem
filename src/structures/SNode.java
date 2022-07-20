@@ -71,7 +71,7 @@ public class SNode {
         byte[] time = new byte[Long.BYTES];
         System.arraycopy(bytes, placeInTheArray, time, 0, time.length);
         placeInTheArray += time.length;
-        System.out.println(Arrays.toString(time));
+
         this.creationDate = ByteManager.turnBytesIntoLong(time);
 
         System.arraycopy(bytes, placeInTheArray, time, 0, time.length);
@@ -154,7 +154,6 @@ public class SNode {
 
         int placeInTheArray = 0;
 
-        System.out.println(fileType.id());
         inBytes[placeInTheArray] = fileType.id();
         placeInTheArray ++;
 
@@ -162,7 +161,6 @@ public class SNode {
         placeInTheArray++;
 
         byte[] time = ByteManager.turnLongIntoBytes(creationDate);
-        System.out.println(Arrays.toString(time));
         System.arraycopy(time, 0, inBytes, placeInTheArray, time.length);
         placeInTheArray += time.length;
 

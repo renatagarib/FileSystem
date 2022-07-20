@@ -1,5 +1,7 @@
 package structures;
 
+import byteManager.ByteManager;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -27,24 +29,16 @@ public class DEntry {
         int placeInTheArray = 0;
 
         //transform the NodeIdentifier into bytes
-        ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
-        buffer.putInt(sNodeIdentifier);
-        //rewind it so the first byte is in the right
-        buffer.rewind();
-        byte[] sNodeIdentifierInBytes = buffer.array();
+        byte[] sNodeIdentifierInBytes = ByteManager.turnIntegerIntoBytes(sNodeIdentifier);
         //add the bytes, starting at the second one to simulate unsigned integer,
         //into the array that's going to be returned
-        System.arraycopy(sNodeIdentifierInBytes, 2, bytes, placeInTheArray, 2);
+        System.arraycopy(sNodeIdentifierInBytes, 0, bytes, placeInTheArray, sNodeIdentifierInBytes.length);
 
         //update the new position adding the length of the added array
-        placeInTheArray += 2;
+        placeInTheArray += sNodeIdentifierInBytes.length;
 
         //transform entryLength into bytes
-        buffer = ByteBuffer.allocate(Short.BYTES);
-        buffer.putShort(entryLength);
-        //rewind it so the first byte is in the right
-        buffer.rewind();
-        byte[] entryLengthInBytes = buffer.array();
+        byte[] entryLengthInBytes = ByteManager.turnShortIntoBytes(entryLength);
         //add the bytes into the array that's going to be returned
         System.arraycopy(entryLengthInBytes, 0, bytes, placeInTheArray, entryLengthInBytes.length);
 
@@ -60,7 +54,7 @@ public class DEntry {
         placeInTheArray += 1;
 
         //transform the fileName in bytes using utf-8
-        byte[] fileNameInBytes = fileName.getBytes(StandardCharsets.UTF_8);
+        byte[] fileNameInBytes = ByteManager.turnStringIntoBytes(fileName);
         //store it into the array
         System.arraycopy(fileNameInBytes, 0, bytes, placeInTheArray, fileNameInBytes.length);
 

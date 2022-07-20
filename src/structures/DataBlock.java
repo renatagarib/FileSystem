@@ -1,5 +1,7 @@
 package structures;
 
+import byteManager.ByteManager;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -27,7 +29,7 @@ public class DataBlock {
             if (data[i] + data[i+1] != 0) {
                 //first entry of a DEntry is the SNode (1st and 2nd bytes), second is the length of the DEntry (3rd and 4th bytes)
                 //transform the 3rd and 4th bytes into a short to find out when the next entry start
-                short nextEntry = turnBytesIntoShort(data[i+2], data[i+3]);
+                short nextEntry = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
                 //add the entryLength to i to jump to the next entry, subtract 1 because of the for loop
                 i += nextEntry - 1; //jumps to the end of a DEntry
             } else {
@@ -60,10 +62,10 @@ public class DataBlock {
 
                 String name = turnFileNameIntoString(data[i+5], i+6);
                 if (name.equals(filename)) {
-                    return turnBytesIntoUnsignedInteger(data[i], data[i+1]);
+                    return ByteManager.turnBytesIntoUnsignedInteger(data[i], data[i+1]);
                 }
             }
-            nextEntry = turnBytesIntoShort(data[i+2], data[i+3]);
+            nextEntry = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
             if (nextEntry == 0)
                 break;
         }
@@ -73,9 +75,9 @@ public class DataBlock {
     public short getDEntryLength(int sNode) {
         for (int i = 0; i < data.length-6; i++) {
 
-            int entrySNode = turnBytesIntoUnsignedInteger(data[i], data[i+1]);
+            int entrySNode = ByteManager.turnBytesIntoUnsignedInteger(data[i], data[i+1]);
 
-            short entryLength = turnBytesIntoShort(data[i+2], data[i+3]);
+            short entryLength = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
 
             if (entrySNode == sNode) {
                 return entryLength;
@@ -91,19 +93,19 @@ public class DataBlock {
         int deletedEntryPlace = -1;
 
         for (int i = 0; i < data.length - 6; i+=entryLength) {
-            int entrySNode = turnBytesIntoUnsignedInteger(data[i], data[i+1]);
+            int entrySNode = ByteManager.turnBytesIntoUnsignedInteger(data[i], data[i+1]);
 
             if (entrySNode == sNode) {
                 deletedEntryPlace = i + length;
                 break;
             }
 
-            entryLength = turnBytesIntoShort(data[i+2], data[i+3]);
+            entryLength = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
             System.arraycopy(data, i, newData, i, entryLength);
         }
 
         for (int i = deletedEntryPlace; i < data.length - 6; i += entryLength) {
-            entryLength = turnBytesIntoShort(data[i+2], data[i+3]);
+            entryLength = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
             System.arraycopy(data, i, newData, i - length, entryLength);
             if (entryLength == 0)
                 break;
@@ -124,7 +126,7 @@ public class DataBlock {
         short entryLength;
 
         for (int i = 0; i < data.length - 6; i += entryLength) {
-            entryLength = turnBytesIntoShort(data[i+2], data[i+3]);
+            entryLength = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
             if (entryLength != 0) {
                 String name = turnFileNameIntoString(data[i+5], i+6);
                 entries.add(name);
@@ -135,22 +137,8 @@ public class DataBlock {
         return entries.toArray(new String[0]);
     }
 
-    private int turnBytesIntoUnsignedInteger(byte n1, byte n2) {
-        ByteBuffer bb = ByteBuffer.allocate(4);
-        bb.order(ByteOrder.BIG_ENDIAN);
-        bb.put((byte) 0);
-        bb.put((byte) 0);
-        bb.put(n1);
-        bb.put(n2);
-        return bb.getInt(0);
-    }
-
-    private short turnBytesIntoShort(byte n1, byte n2) {
-        ByteBuffer bb = ByteBuffer.allocate(2);
-        bb.order(ByteOrder.BIG_ENDIAN);
-        bb.put(n1);
-        bb.put(n2);
-        return bb.getShort(0);
+    public byte[] toByteArray() {
+        return data;
     }
 
     private String turnFileNameIntoString(byte length, int startInData) {

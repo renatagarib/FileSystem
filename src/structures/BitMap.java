@@ -71,4 +71,8 @@ public class BitMap {
 
         return bitmap.toString();
     }
+
+    public byte[] toByteArray() {
+        return elements;
+    }
 }

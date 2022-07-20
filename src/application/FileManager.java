@@ -1,15 +1,9 @@
 package application;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Arrays;
+
 
 import exceptions.*;
 import interfaces.FileManagementInterface;
@@ -46,7 +40,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     private void addRootDirectory() {
         //get the time of creation
-        long time = getTime();
+        long time = System.currentTimeMillis();;
 
         //add the sNode to the sNodes array
         sNodes[0].reUseSNode(DIRECTORY, time, time, (short) 0, new int[] {0});
@@ -94,7 +88,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             //check if the addition of the DEntry at the directory was successful
             if (dataBlocks[dirDataBlocks[0]].addDEntry(dir)) {
 
-                long time = getTime();
+                long time = System.currentTimeMillis();;
 
                 //reuse SNode for the new directory (so that the generation var add 1)
                 sNodes[sNode].reUseSNode(DIRECTORY, time, time, (short) 0, dataBlock);
@@ -155,7 +149,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         //create a dEntry for the new file
         DEntry file = new DEntry(fileSNode, entryLength, type, (byte) filename.length(), filename);
         if (dataBlocks[dirDataBlocks[0]].addDEntry(file)) {
-            long time = getTime();
+            long time = System.currentTimeMillis();;
 
             //reuse SNode for the new directory (so that the generation var add 1)
             sNodes[fileSNode].reUseSNode(type, time, time, (short) length, fileDataBlock);
@@ -199,7 +193,7 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
             short entryLength = dataBlocks[dirDataBlocks[0]].getDEntryLength(sNode);
 
-            long time = getTime();
+            long time = System.currentTimeMillis();;
             sNodes[dirSNode].deleteDEntry(time, entryLength);
 
             dataBlocks[dirDataBlocks[0]].deleteDEntry(sNode, entryLength);
@@ -323,10 +317,5 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             }
         }
         return sNode;
-    }
-
-    private long getTime() {
-        ZoneId zoneId = ZoneId.systemDefault();
-        return LocalDateTime.now().atZone(zoneId).toEpochSecond();
     }
 }

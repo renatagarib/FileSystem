@@ -16,6 +16,14 @@ import structures.*;
 import static structures.FileType.DIRECTORY;
 import static structures.FileType.valueOf;
 
+/**
+* Classe FileManager
+* Responsavel por Gerenciar os arquivos disponíveis.
+*
+* @author Gabriela Marcelino Pereira de Souza - N°USP 9379614
+* @author Heitor Boccato - N°USP 10277130
+* @author Renata Rona Garib - N°USP 11207950
+*/
 public class FileManager implements FileManagementInterface, VirtualDiskInspectionInterface {
 
     private Path binaryFile;
@@ -107,6 +115,9 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         }
     }
 
+    /**
+	* Método addRootDirectory utilizando o tempo e o sNode para a criação dos diretorios raiz.
+	*/
     private void addRootDirectory() {
         //get the time of creation
         long time = System.currentTimeMillis();
@@ -119,6 +130,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         dataControl.addElement(0);
     }
 
+    /**
+	* Método readBinaryFile utilizado para ler os arquivos binarios.
+	* Path path
+	*/
     private byte[] readBinaryFile(Path path) throws IOException {
         try {
             //read the file
@@ -130,6 +145,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         }
     }
 
+    /**
+	* Método addDirectory utiliza as entradas do usuário String pathname, String filename
+	* para criar um diretório.
+	*/
     @Override
     public boolean addDirectory(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
         //catch exceptions before function execution
@@ -192,6 +211,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         return false; // the directory was not added
     }
 
+    /**
+	* Método addFile utiliza as entradas do usuário String pathname, String filename, FileType type, int length.
+	* para adicionar um arquivo ao diretório.
+	*/
     @Override
     public boolean addFile(String pathname, String filename, FileType type, int length) throws InvalidEntryException, VirtualFileNotFoundException {
         //catch exceptions before function execution
@@ -265,6 +288,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         return false;
     }
 
+    /**
+	* Método deleteFile utiliza as entradas do usuário String pathname, String filename.
+	* para deletar um arquivo ao diretório.
+	*/
     @Override
     public boolean deleteFile(String pathname, String filename) throws InvalidEntryException, VirtualFileNotFoundException {
         //catch exceptions before function execution
@@ -324,6 +351,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         }
     }
 
+    /**
+	* Método listDirectory utiliza as entradas do usuário String pathname.
+	* para listar os arquivos do diretório.
+	*/
     @Override
     public String[] listDirectory(String pathname) throws InvalidEntryException, VirtualFileNotFoundException {
         //catch exceptions before function execution
@@ -344,6 +375,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         return dataBlocks[dirDataBlocks[0]].toStringArray();
     }
 
+    /**
+	* Método parseCommandFile utiliza as entradas do usuário String pathname.
+	* para Analisar os aquivos de comando.
+	*/
     @Override
     public boolean parseCommandFile(String pathname) {
 
@@ -410,6 +445,9 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         }
     }
 
+    /**
+	* Método saveVirtualDisk utilizado para salvar no disco.
+	*/
     @Override
     public boolean saveVirtualDisk() {
 
@@ -455,6 +493,10 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
     }
 
+    /**
+	* Método getSNodeInfo utiliza as entradas do usuário int snodeId.
+	* para verificar o sNode.
+	*/
     @Override
     public String getSNodeInfo(int snodeId) throws InvalidSNodeException {
         if (snodeId >= 0 && snodeId < sNodes.length)
@@ -464,16 +506,28 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             throw new InvalidSNodeException("Invalid S Node ID.");
     }
 
+    /**
+	* Método getSNodeBitmap obtem o bitmap do sNode.
+	* @return fileInfoControl.toString() - Referente ao bitmap solicitado
+	*/
     @Override
     public String getSnodeBitmap() {
         return "SNode Bitmap:\n" + fileInfoControl.toString();
     }
 
+    /**
+	* Método getDataBlockBitmap obtem o bitmap dos blocos de dados.
+	* @return dataControl.toString() - Referente ao bitmap de controle de dados
+	*/
     @Override
     public String getDataBlockBitmap() {
         return "Data Block Bitmap:\n" + dataControl.toString();
     }
 
+    /**
+	* Método findDirectoryThroughPath utiliza a entrada do usuário String pathname.
+	* para encontrar um diretório através do caminho existente.
+	*/
     private int findDirectoryThroughPath(String pathname) {
         //split the path into directories
         String[] directories = pathname.split("/");

@@ -9,8 +9,20 @@ import java.util.Scanner;
 import exceptions.*;
 import structures.FileType;
 
+/**
+* Classe UserInterface
+* Interface para comunicação com o usuário
+*
+* @author Gabriela Marcelino Pereira de Souza - N°USP 9379614
+* @author Heitor Boccato - N°USP 10277130
+* @author Renata Rona Garib - N°USP 11207950
+*/
 public class UserInterface {
 
+	/**
+	* Método main, será responsável por comunicar com o usuário
+	* através da entrada por String[] args
+	*/
     public static void main(String[] args) throws InvalidEntryException, InvalidSNodeException, VirtualFileNotFoundException, IOException {
 
         FileManager gerenteDeArquivo = new FileManager(args[0] ,Integer.parseInt(args[1]), Integer.parseInt(args[2]));
@@ -143,6 +155,11 @@ public class UserInterface {
 
         scanner.close();
     }
+    
+    /**
+	* A função listarComandos responsável por trazer ao usuário todos os comandos que podem ser utilizados 
+	* pelo usuário
+	*/
     // List of all commands.
     private static void listarComandos() {
         System.out.println("Comando <parametros>");

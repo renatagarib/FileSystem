@@ -28,7 +28,9 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
     public FileManager(String binaryFile, int n, int m) throws IOException {
         this.binaryFile = Paths.get(binaryFile);
 
-        if (readBinaryFile(this.binaryFile).length == 0) {
+        byte[] byteArray = readBinaryFile(this.binaryFile);
+
+        if (byteArray.length == 0) {
             sNodes = new SNode[n];
 
             for (int i = 0; i < n; i++) {
@@ -44,8 +46,44 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
             for (int i = 0; i < m; i++) {
                 dataBlocks[i] = new DataBlock();
             }
-        } else {
 
+        } else {
+            int placeInTheArray = 0;
+
+            this.sNodes = new SNode[n];
+
+            //create root node
+            byte[] rootDirectory = new byte[28];
+            System.arraycopy(byteArray, 0, rootDirectory, 0, rootDirectory.length);
+            this.sNodes[0] = new SNode();
+            this.sNodes[0].rootNode(rootDirectory);
+
+            placeInTheArray += rootDirectory.length;
+
+            for (int i = 1; i < n; i++) {
+                byte[] sNode = new byte[28];
+                System.arraycopy(byteArray, placeInTheArray, sNode, 0, sNode.length);
+                this.sNodes[i] = new SNode(sNode);
+                placeInTheArray += sNode.length;
+            }
+
+            byte[] fileInfoControl = new byte[n/8];
+            System.arraycopy(byteArray, placeInTheArray, fileInfoControl, 0, fileInfoControl.length);
+            this.fileInfoControl = new BitMap(fileInfoControl);
+            placeInTheArray += fileInfoControl.length;
+
+            this.dataBlocks = new DataBlock[m];
+
+            for (int i = 0; i < m; i++) {
+                byte[] dataBlock = new byte[128];
+                System.arraycopy(byteArray, placeInTheArray, dataBlock, 0, dataBlock.length);
+                this.dataBlocks[i] = new DataBlock(dataBlock);
+                placeInTheArray += dataBlock.length;
+            }
+
+            byte[] dataControl = new byte[m/8];
+            System.arraycopy(byteArray, placeInTheArray, dataControl, 0, dataControl.length);
+            this.dataControl = new BitMap(dataControl);
         }
     }
 
@@ -301,7 +339,12 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
         int placeInTheArray = 0;
 
         for (SNode sNode : sNodes) {
-            byte[] sNodeInBytes = sNode.toByteArray();
+            byte[] sNodeInBytes;
+            if (sNode.getFileType() == null) {
+                sNodeInBytes = new byte[28];
+            } else {
+                sNodeInBytes = sNode.toByteArray();
+            }
             System.arraycopy(sNodeInBytes, 0, fileManagerIntoBytes, placeInTheArray, sNodeInBytes.length);
             placeInTheArray += sNodeInBytes.length;
         }
@@ -317,8 +360,13 @@ public class FileManager implements FileManagementInterface, VirtualDiskInspecti
 
         System.arraycopy(dataControl.toByteArray(), 0, fileManagerIntoBytes, placeInTheArray, dataControl.getSize());
 
-        Files.write(binaryFile, fileManagerIntoBytes);
-        return true;
+        try {
+            Files.write(binaryFile, fileManagerIntoBytes);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+
     }
 
     @Override

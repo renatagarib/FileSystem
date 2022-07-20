@@ -45,14 +45,13 @@ public class ByteManager {
     public static byte[] turnLongIntoBytes(long entry) {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.putLong(entry);
-        buffer.rewind();
         return buffer.array();
     }
 
     public static long turnBytesIntoLong(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-        buffer.order(ByteOrder.BIG_ENDIAN);
         buffer.put(bytes);
+        buffer.flip();
         return buffer.getLong();
     }
 

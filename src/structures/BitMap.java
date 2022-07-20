@@ -9,6 +9,10 @@ public class BitMap {
         elements = new byte[size];
     }
 
+    public BitMap(byte[] bytes) {
+        elements = bytes;
+    }
+
     public void addElement(int location) {
         int place = location/8; //add element to the byte
         elements[place] |= (1 << (7 - location % 8));

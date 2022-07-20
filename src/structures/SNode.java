@@ -2,11 +2,9 @@ package structures;
 
 import byteManager.ByteManager;
 
-import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 
 public class SNode {
     private FileType fileType;
@@ -21,7 +19,70 @@ public class SNode {
     }
 
     public SNode(byte[] bytes) {
+        int placeInTheArray = 0;
 
+        this.fileType = FileType.values()[bytes[placeInTheArray]];
+        placeInTheArray ++;
+
+        this.generation = bytes[placeInTheArray];
+        placeInTheArray ++;
+
+        byte[] time = new byte[Long.BYTES];
+        System.arraycopy(bytes, placeInTheArray, time, 0, time.length);
+        placeInTheArray += time.length;
+        this.creationDate = ByteManager.turnBytesIntoLong(time);
+
+        System.arraycopy(bytes, placeInTheArray, time, 0, time.length);
+        placeInTheArray += time.length;
+        this.modificationDate = ByteManager.turnBytesIntoLong(time);
+
+        byte[] length = new byte[Short.BYTES];
+        System.arraycopy(bytes, placeInTheArray, length, 0, length.length);
+        placeInTheArray += time.length;
+        this.length = ByteManager.turnBytesIntoShort(length[0], length[1]);
+
+        int[] dataBlocks = new  int[4];
+        int numberOfDataBlocks = 0;
+
+        for (int i = placeInTheArray; i < (bytes.length - 1); i+=2) {
+            int bd = ByteManager.turnBytesIntoUnsignedInteger(bytes[placeInTheArray], bytes[placeInTheArray + 1]);
+
+            if (bd == 0)
+                break;
+            else {
+                dataBlocks[numberOfDataBlocks] = bd;
+                numberOfDataBlocks++;
+            }
+        }
+
+        this.dataBlocks = new int[numberOfDataBlocks];
+        System.arraycopy(dataBlocks, 0, this.dataBlocks, 0, numberOfDataBlocks);
+    }
+
+    public void rootNode(byte[] bytes) {
+        int placeInTheArray = 0;
+
+        this.fileType = FileType.values()[bytes[placeInTheArray]];
+        placeInTheArray ++;
+
+        this.generation = bytes[placeInTheArray];
+        placeInTheArray ++;
+
+        byte[] time = new byte[Long.BYTES];
+        System.arraycopy(bytes, placeInTheArray, time, 0, time.length);
+        placeInTheArray += time.length;
+        System.out.println(Arrays.toString(time));
+        this.creationDate = ByteManager.turnBytesIntoLong(time);
+
+        System.arraycopy(bytes, placeInTheArray, time, 0, time.length);
+        placeInTheArray += time.length;
+        this.modificationDate = ByteManager.turnBytesIntoLong(time);
+
+        byte[] length = new byte[Short.BYTES];
+        System.arraycopy(bytes, placeInTheArray, length, 0, length.length);
+        this.length = ByteManager.turnBytesIntoShort(length[0], length[1]);
+
+        this.dataBlocks = new int[]{0};
     }
 
     public void reUseSNode(FileType fileType, long creationDate, long modificationDate, short length, int[] dataBlocks) {
@@ -85,6 +146,7 @@ public class SNode {
 
         int placeInTheArray = 0;
 
+        System.out.println(fileType.id());
         inBytes[placeInTheArray] = fileType.id();
         placeInTheArray ++;
 
@@ -92,6 +154,7 @@ public class SNode {
         placeInTheArray++;
 
         byte[] time = ByteManager.turnLongIntoBytes(creationDate);
+        System.out.println(Arrays.toString(time));
         System.arraycopy(time, 0, inBytes, placeInTheArray, time.length);
         placeInTheArray += time.length;
 

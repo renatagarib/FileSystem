@@ -2,6 +2,9 @@ package interfaces;
 
 import exceptions.*;
 import structures.FileType;
+
+import java.io.IOException;
+
 public interface FileManagementInterface{
 	
 	/**
@@ -56,5 +59,5 @@ public interface FileManagementInterface{
      * Metodo que salva as estruturas do disco virtual em um arquivo binario    
      * @return true se operacao realizada com sucesso, false se erro durante a execucao da operacao 
      */ 
-	public boolean saveVirtualDisk();
+	public boolean saveVirtualDisk() throws IOException;
 }

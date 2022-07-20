@@ -21,21 +21,28 @@ public class SNode {
     public SNode(byte[] bytes) {
         int placeInTheArray = 0;
 
+        //get the first byte of the array and turn it into fileType
         this.fileType = FileType.values()[bytes[placeInTheArray]];
         placeInTheArray ++;
 
+        //set the generation to the second byte
         this.generation = bytes[placeInTheArray];
         placeInTheArray ++;
 
+        //turn the nex 8 bytes of the array into a long
         byte[] time = new byte[Long.BYTES];
         System.arraycopy(bytes, placeInTheArray, time, 0, time.length);
         placeInTheArray += time.length;
+        //set the creating date
         this.creationDate = ByteManager.turnBytesIntoLong(time);
 
+        //turn the nex 8 bytes of the array into a long
         System.arraycopy(bytes, placeInTheArray, time, 0, time.length);
         placeInTheArray += time.length;
+        //set the modificationDate
         this.modificationDate = ByteManager.turnBytesIntoLong(time);
 
+        //turn the nex 2 bytes of the array into a short
         byte[] length = new byte[Short.BYTES];
         System.arraycopy(bytes, placeInTheArray, length, 0, length.length);
         placeInTheArray += time.length;
@@ -44,10 +51,11 @@ public class SNode {
         int[] dataBlocks = new  int[4];
         int numberOfDataBlocks = 0;
 
+        //turn the rest of the bytes of the array into data blocks
         for (int i = placeInTheArray; i < (bytes.length - 1); i+=2) {
             int bd = ByteManager.turnBytesIntoUnsignedInteger(bytes[placeInTheArray], bytes[placeInTheArray + 1]);
 
-            if (bd == 0)
+            if (bd == 0) //if the data block is 0 it doesn't exist, because 0 is the root data block
                 break;
             else {
                 dataBlocks[numberOfDataBlocks] = bd;
@@ -55,6 +63,7 @@ public class SNode {
             }
         }
 
+        //set the array of data blocks with the amount of data blocks necessary
         this.dataBlocks = new int[numberOfDataBlocks];
         System.arraycopy(dataBlocks, 0, this.dataBlocks, 0, numberOfDataBlocks);
     }

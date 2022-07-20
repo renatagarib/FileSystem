@@ -20,7 +20,7 @@ public class DataBlock {
     }
 
     public boolean clear() {
-        Arrays.fill(data, (byte) 0);
+        Arrays.fill(data, (byte) 0);//turn all bytes in the data block to 0
         return true;
     }
 
@@ -57,19 +57,22 @@ public class DataBlock {
     public int lookForDEntry(String filename) {
         short nextEntry = 1;
         for (int i = 0; i < data.length - 6; i += nextEntry) {
-            //checks if the fileNameLength if the same as the parameter length
+            //checks if the fileNameLength is the same as the parameter length
             if (data[i+5] == filename.length()) {
 
+                //turns the fileName into a string
                 String name = turnFileNameIntoString(data[i+5], i+6);
+                //compares to the parameter
                 if (name.equals(filename)) {
                     return ByteManager.turnBytesIntoUnsignedInteger(data[i], data[i+1]);
                 }
             }
+            //goes to the next entry
             nextEntry = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
-            if (nextEntry == 0)
+            if (nextEntry == 0) // if there isn't any, breaks
                 break;
         }
-        return -1;
+        return -1; // return -1 if the file isn't found
     }
 
     public short getDEntryLength(int sNode) {
@@ -92,18 +95,22 @@ public class DataBlock {
         byte[] newData = new byte[data.length];
         int deletedEntryPlace = -1;
 
+        //find the entry to be deleted
         for (int i = 0; i < data.length - 6; i+=entryLength) {
             int entrySNode = ByteManager.turnBytesIntoUnsignedInteger(data[i], data[i+1]);
 
             if (entrySNode == sNode) {
+                //get the entry in the array
                 deletedEntryPlace = i + length;
                 break;
             }
 
+            //get the next entry
             entryLength = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
             System.arraycopy(data, i, newData, i, entryLength);
         }
 
+        //delete the entry from the array
         for (int i = deletedEntryPlace; i < data.length - 6; i += entryLength) {
             entryLength = ByteManager.turnBytesIntoShort(data[i+2], data[i+3]);
             System.arraycopy(data, i, newData, i - length, entryLength);
@@ -114,14 +121,16 @@ public class DataBlock {
         data = newData;
     }
 
-    // DEntry:
-    // 2 bytes -> sNode -> i, i+1
-    // 2 bytes -> entryLength -> i+2, i+3
-    // 1 byte  -> fileType -> i+4
-    // 1 byte  -> fileNameLength -> i+5
-    // x bytes -> fileName
+
 
     public String[] toStringArray() {
+        // DEntry:
+        // 2 bytes -> sNode -> i, i+1
+        // 2 bytes -> entryLength -> i+2, i+3
+        // 1 byte  -> fileType -> i+4
+        // 1 byte  -> fileNameLength -> i+5
+        // x bytes -> fileName
+
         ArrayList<String> entries = new ArrayList<>();
         short entryLength;
 
